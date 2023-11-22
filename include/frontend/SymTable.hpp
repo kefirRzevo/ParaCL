@@ -17,19 +17,19 @@ class SymTable final
 private:
     struct keyHash
     {
-        std::size_t operator()(const string_view& key) const {
+        std::size_t operator()(const std::string_view& key) const {
             return std::hash<K>()(key);
         }
     };
 
     struct keyEqual
     {
-        bool operator() (const string_view& lhs, const string_view& rhs) const {
+        bool operator()(const std::string_view& lhs, const std::string_view& rhs) const {
             return lhs == rhs;
         }
     };
 
-    using Map = std::unordered_map<string_view, VariableExpression*, keyHash, keyEqual>;
+    using Map = std::unordered_map<std::string_view, VariableExpression*, keyHash, keyEqual>;
 
     Map table_;
 
@@ -44,7 +44,7 @@ public:
         return table_.count(name);
     }
 
-    std::optional<VariableExpression* > lookupVariable(std::string_view name) const {
+    std::optional<VariableExpression*> lookupVariable(std::string_view name) const {
         auto found = table_.find(name);
         if (found == table_.end()) {
             return std::nullopt;
@@ -68,7 +68,7 @@ public:
 class ScopeChecker final
 {
 private:
-    std::vector<SymTable* > scopes_;
+    std::vector<SymTable*> scopes_;
 
 public:
     ScopeChecker() = default;
@@ -81,7 +81,7 @@ public:
         scopes_.pop_back();
     }
 
-    std::optional<SymTable* > lookupScope(std::string_view name) const {
+    std::optional<SymTable*> lookupScope(std::string_view name) const {
         for (auto it = scopes_.rbegin(); it != scopes_.rend(); ++it) {
             if (it->declared(name)) {
                 return *it;
@@ -100,7 +100,7 @@ public:
         return lookupScope(name) != std::nullopt;
     }
 
-    std::optional<VariableExpression* > lookupVariable(std::string_view name) const {
+    std::optional<VariableExpression*> lookupVariable(std::string_view name) const {
         for (auto it = scopes_.rbegin(); it != scopes_.rend(); ++it) {
             auto found = it->lookupVariable(name);
             if (found) {
@@ -123,4 +123,4 @@ public:
     }
 };
 
-} // namespace paracl::frontend {
+} // namespace paracl::frontend
