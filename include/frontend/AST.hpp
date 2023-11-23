@@ -6,8 +6,10 @@
 #include <fstream>
 #include <utility>
 #include <iostream>
-//#include "../../res/location.hpp"
+#include "location.hpp"
+#include "SymTable.hpp"
 
+/*
 struct point
 {
     int line;
@@ -19,7 +21,7 @@ struct location
     point begin;
     point end;
 };
-
+*/
 namespace paracl::frontend
 {
 
@@ -69,7 +71,7 @@ struct UnaryExpression : public Expression
 {
     using Expression::loc_;
 
-    UnaryExpression op_;
+    UnaryOperation op_;
     Expression* expr_ = nullptr;
 
     UnaryExpression(UnaryOperation op, Expression* expr, const location& loc) :
@@ -123,7 +125,7 @@ struct TernaryExpression : public Expression
     Expression* trueExpr_ = nullptr;
     Expression* falseExpr_ = nullptr;
 
-    BinaryExpression(Expression* condition, Expression* trueExpr, Expression* falseExpr, const location& loc) :
+    TernaryExpression(Expression* condition, Expression* trueExpr, Expression* falseExpr, const location& loc) :
         Expression(loc), condition_(condition), trueExpr_(trueExpr), falseExpr_(falseExpr) {}
 
     void dump(std::ostream& os) const override;
@@ -186,15 +188,14 @@ struct BlockStatement : public Statement
     void dump(std::ostream& os) const override;
 };
 
-struct AssignmentStatement : public Statement
+struct ExpressionStatement : public Statement
 {
     using Statement::loc_;
 
-    VariableExpression* left_;
-    Expression* right_;
+    Expression* expr_;
 
-    AssignmentStatement(VariableExpression* left, Expression* right, const location& loc) :
-        Statement(loc), left_(left), right_(right) {}
+    ExpressionStatement(Expression* expr, const location& loc) :
+        Statement(loc), expr_(expr) {}
 
     void dump(std::ostream& os) const override;
 };
@@ -204,13 +205,13 @@ struct IfStatement : public Statement
     using Statement::loc_;
 
     Expression* condition_ = nullptr;
-    BlockStatement* trueBlock_ = nullptr;
-    BlockStatement* falseBlock_ = nullptr;
+    Statement* trueBlock_ = nullptr;
+    Statement* falseBlock_ = nullptr;
 
-    IfStatement(Expression* condition, BlockStatement* trueBlock, const location& loc) :
+    IfStatement(Expression* condition, Statement* trueBlock, const location& loc) :
         Statement(loc), condition_(condition), trueBlock_(trueBlock) {}
 
-    IfStatement(Expression* condition, BlockStatement* trueBlock, BlockStatement* falseBlock, const location& loc) :
+    IfStatement(Expression* condition, Statement* trueBlock, Statement* falseBlock, const location& loc) :
         Statement(loc), condition_(condition), trueBlock_(trueBlock), falseBlock_(falseBlock) {}
 
     void dump(std::ostream& os) const override;
@@ -221,9 +222,9 @@ struct WhileStatement : public Statement
     using Statement::loc_;
 
     Expression* condition_ = nullptr;
-    BlockStatement* block_ = nullptr;
+    Statement* block_ = nullptr;
 
-    WhileStatement(Expression* condition, BlockStatement* block, const location& loc) :
+    WhileStatement(Expression* condition, Statement* block, const location& loc) :
         Statement(loc), condition_(condition), block_(block) {}
 
     void dump(std::ostream& os) const override;
@@ -241,6 +242,26 @@ struct OutputStatement : public Statement
     void dump(std::ostream& os) const override;
 };
 
+struct BreakStatement : public Statement
+{
+    using Statement::loc_;
+
+    BreakStatement(const location& loc) :
+        Statement(loc) {}
+
+    void dump(std::ostream& os) const override;
+};
+
+struct ContinueStatement : public Statement
+{
+    using Statement::loc_;
+
+    ContinueStatement(const location& loc) :
+        Statement(loc) {}
+
+    void dump(std::ostream& os) const override;   
+};
+
 class AST final
 {
 private:
@@ -249,7 +270,7 @@ private:
 
 public:
     AST() = default;
-    AST(const ASTe&) = delete;
+    AST(const AST&) = delete;
     AST& operator=(const AST&) = delete;
     AST(AST&&) = default;
     AST& operator=(AST&&) = default;
@@ -273,7 +294,7 @@ public:
 
     void dump(std::ostream& os) const {
         os << "digraph {";
-        root_->dump();
+        root_->dump(os);
         os << "}" << std::endl;
     }
 };

@@ -4,10 +4,11 @@
 #include <FlexLexer.h>
 #endif
 
-#include <string>
-#include "../../src/location.hpp"
+#undef YY_DECL
+#define YY_DECL paracl::frontend::Parser::symbol_type paracl::frontend::Lexer::getNextToken()
 
-#define YY_DECL paracl::frontend::symbol_type paracl::frontend::Lexer::getNextToken()
+#include "parser.tab.hh"
+#include "location.hpp"
 
 namespace paracl::frontend
 {
@@ -22,9 +23,9 @@ private:
 
 public:
     Lexer(Driver* driver, const std::string& file) :
-        driver_(driver), curPos_(file) {}
+        driver_(driver), curPos_(std::addressof(file)) {}
 
-    paracl::frontend::symbol_type getNextToken();
+    Parser::symbol_type getNextToken();
 
     location updateLocation() {
         auto old_ = curPos_;
@@ -35,3 +36,5 @@ public:
 };
 
 } // namespace paracl::frontend
+
+#include "Driver.hpp"

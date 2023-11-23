@@ -9,6 +9,7 @@
 namespace paracl::frontend
 {
 
+struct VariableExpression;
 class SymTable;
 class Scopes;
 
@@ -18,7 +19,7 @@ private:
     struct keyHash
     {
         std::size_t operator()(const std::string_view& key) const {
-            return std::hash<K>()(key);
+            return std::hash<std::string_view>()(key);
         }
     };
 
@@ -49,7 +50,7 @@ public:
         if (found == table_.end()) {
             return std::nullopt;
         }
-        return found.second;
+        return found->second;
     }
 
     auto begin() const {
@@ -83,7 +84,7 @@ public:
 
     std::optional<SymTable*> lookupScope(std::string_view name) const {
         for (auto it = scopes_.rbegin(); it != scopes_.rend(); ++it) {
-            if (it->declared(name)) {
+            if ((*it)->declared(name)) {
                 return *it;
             }
         }
@@ -92,7 +93,7 @@ public:
 
     void declare(std::string_view name, VariableExpression* node) {
         if (!scopes_.empty()) {
-            scopes_.back().declare(name, node);
+            scopes_.back()->declare(name, node);
         }
     }
 
@@ -102,7 +103,7 @@ public:
 
     std::optional<VariableExpression*> lookupVariable(std::string_view name) const {
         for (auto it = scopes_.rbegin(); it != scopes_.rend(); ++it) {
-            auto found = it->lookupVariable(name);
+            auto found = (*it)->lookupVariable(name);
             if (found) {
                 return found;
             }

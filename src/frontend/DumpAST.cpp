@@ -3,6 +3,7 @@
 namespace paracl::frontend
 {
 
+/*
 void ErrorNode::dump(std::ostream& os) const {
     os << "\tnode[shape=triangle, style=filled, fontcolor=black, fillcolor=red];\n";
     os << "\tnode_" << this << "[label = \"Error\"];\n";
@@ -126,5 +127,5 @@ void OutputStatement::dump(std::ostream& os) const {
     Statement::dump(os);
     os << "\tnode_" << this << "[label = \"print\", fillcolor=lightbrown];\n";
 }
-
+*/
 } // namespace paracl::frontend {

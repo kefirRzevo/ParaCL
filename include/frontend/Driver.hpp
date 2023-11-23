@@ -1,11 +1,13 @@
 #pragma once
 
-#include "../../res/scanner.h"
-#include "../../res/parser.h"
+#include "parser.tab.hh"
 #include "SymTable.hpp"
 #include "Errors.hpp"
 #include "Lexer.hpp"
 #include "AST.hpp"
+
+namespace paracl::frontend
+{
 
 class Driver
 {
@@ -23,19 +25,21 @@ public:
 
     template<typename NodeType, typename... NodeArgs>
     NodeType* createNode(NodeArgs&&... args) {
-        return tree_.createNode<NodeType>(std::forward<NodeArgs>(args)...);
+        return tree_->createNode<NodeType>(std::forward<NodeArgs>(args)...);
     }
 
     void setRoot(Node* root) {
-        tree_.setRoot(root);
+        tree_->setRoot(root);
     }
 
     const Node* getRoot() const {
-        return tree_.getRoot();
+        return tree_->getRoot();
     }
 
     template<typename ErrorType, typename... ErrorArgs>
-    void reportError(NodeArgs&&... args) {
-        reporter_.reportError<ErrorType>(std::forward<ErrorArgs>(args)...);
+    void reportError(ErrorArgs&&... args) {
+        reporter_->reportError<ErrorType>(std::forward<ErrorArgs>(args)...);
     }
 };
+
+} // namespace paracl::frontend
