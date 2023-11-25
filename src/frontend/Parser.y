@@ -28,18 +28,22 @@
     } // namespace paracl::frontend
 } // %code requires
 
-%code top
+%code
 {
     #include <string>
     #include <iostream>
     #include "frontend/Driver.hpp"
     #include "frontend/Lexer.hpp"
 
-    static paracl::frontend::Parser::symbol_type yylex(paracl::frontend::Lexer& lexer, paracl::frontend::Driver&) {
+    namespace paracl::frontend
+    {
+    
+    inline paracl::frontend::Parser::symbol_type yylex(paracl::frontend::Lexer& lexer, paracl::frontend::Driver&) {
         return lexer.getNextToken();
     }
-    
-} // %code top
+
+    } // namespace paracl::frontend
+} // %code
 
 %lex-param { paracl::frontend::Lexer& lexer }
 %lex-param { paracl::frontend::Driver& driver }

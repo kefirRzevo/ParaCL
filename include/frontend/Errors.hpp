@@ -15,7 +15,7 @@ struct Error
     Error(const location& loc) :
         loc_(loc) {}
 
-    virtual void print(std::ostream& os) const;
+    virtual void print(std::ostream& os) const{assert(std::addressof(os));};
 
     virtual ~Error() = default;
 };
@@ -26,6 +26,8 @@ struct Lexical : public Error
 
     Lexical(const std::string& msg, const location& loc) :
         Error(loc), msg_(msg) {}
+
+    void print(std::ostream& os) const override{assert(std::addressof(os));};
 };
 
 struct UnknownToken : public Lexical
@@ -89,11 +91,19 @@ public:
         errors_.push_back(std::move(uptr));
     }
 
+    bool hasErrors() const {
+        return errors_.size();
+    }
+
     void reportAllErrors(std::ostream& os) const {
         //std::sort(errors_.cbegin(), errors_.cend(), this->errorCompare);
         for (const auto& error: errors_) {
             error->print(os);
         }
+    }
+
+    void clear() {
+        errors_.clear();
     }
 };
 

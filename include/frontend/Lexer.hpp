@@ -7,6 +7,7 @@
 #undef YY_DECL
 #define YY_DECL paracl::frontend::Parser::symbol_type paracl::frontend::Lexer::getNextToken()
 
+#include <fstream>
 #include "parser.tab.hh"
 #include "location.hpp"
 
@@ -14,24 +15,27 @@ namespace paracl::frontend
 {
 
 class Driver;
+class Parser;
 
 class Lexer final : public yyFlexLexer
 {
 private:
     Driver* driver_ = nullptr;
+    std::ifstream in_;
     position curPos_;
 
 public:
-    Lexer(Driver* driver, const std::string& file) :
-        driver_(driver), curPos_(std::addressof(file)) {}
+    Lexer(Driver* driver, std::string* filepath)
+    : driver_(driver), in_(*filepath), curPos_(filepath) {
+        yyrestart(in_);
+    }
 
     Parser::symbol_type getNextToken();
 
     location updateLocation() {
         auto old_ = curPos_;
         curPos_ += yyleng;
-        auto new_ = curPos_;
-        return location{old_, new_};
+        return location{old_, curPos_};
     }
 };
 

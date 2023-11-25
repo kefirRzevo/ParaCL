@@ -11,16 +11,19 @@ set(INTERPETER "${PROJECT_NAME}")
 find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 
-set(COMPILER_SETTINGS -O2 -Wall -Wextra -Wpedantic)
-
+set(CMAKE_BUILD_TYPE Debug)
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    set (COMPILER_SETTINGS -gdwarf-4 -g -Wall -Wextra -Wpedantic)  
+else ()
+    set (COMPILER_SETTINGS -O2 -Wall -Wextra -Wpedantic)
+endif ()
 add_compile_options(${COMPILER_SETTINGS})
 
 include_directories(include)
 
 flex_target(scanner
   src/frontend/Lexer.l
-  ${CMAKE_CURRENT_BINARY_DIR}/lexer.cc
-)
+  ${CMAKE_CURRENT_BINARY_DIR}/lexer.cc)
 
 bison_target(parser
   src/frontend/Parser.y

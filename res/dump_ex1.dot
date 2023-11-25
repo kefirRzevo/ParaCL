@@ -1,0 +1,16 @@
+digraph {
+	node[shape=record, style=filled, fontcolor=black, fillcolor=green];
+	node_0x7f8e05f05e70[label = "../tests/ex1.cl:1.1-7 | Statement Block"];
+	node_0x7f8e05f05e70 -> node_0x7f8e05f05e30;
+	node[shape=record, style=filled, fontcolor=black, fillcolor=green];
+	node_0x7f8e05f05e30[label = "../tests/ex1.cl:1.1-7 | If Else"];
+	node_0x7f8e05f05e30 -> node_0x7f8e05f05c30;
+	node[shape=record, style=filled, fontcolor=black, fillcolor=yellow];
+	node_0x7f8e05f05c30[label = "../tests/ex1.cl:1.4 | 1"];
+	node_0x7f8e05f05e30 -> node_0x7f8e05f05cc0;
+	node[shape=record, style=filled, fontcolor=black, fillcolor=green];
+	node_0x7f8e05f05cc0[label = "../tests/ex1.cl:1.6-7 | Expression Statement"];
+	node_0x7f8e05f05cc0 -> node_0x7f8e05f05c80;
+	node[shape=record, style=filled, fontcolor=black, fillcolor=yellow];
+	node_0x7f8e05f05c80[label = "../tests/ex1.cl:1.6 | 1"];
+}

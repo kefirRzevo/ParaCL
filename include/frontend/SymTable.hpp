@@ -64,6 +64,10 @@ public:
     size_t size() const {
         return table_.size();
     }
+
+    void clear() {
+        table_.clear();
+    }
 };
 
 class ScopeChecker final
@@ -121,6 +125,10 @@ public:
 
     size_t size() const {
         return scopes_.size();
+    }
+
+    void clear() {
+        scopes_.clear();
     }
 };
 

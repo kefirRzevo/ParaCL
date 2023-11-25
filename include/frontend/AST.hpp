@@ -9,19 +9,6 @@
 #include "location.hpp"
 #include "SymTable.hpp"
 
-/*
-struct point
-{
-    int line;
-    int column;
-};
-
-struct location
-{
-    point begin;
-    point end;
-};
-*/
 namespace paracl::frontend
 {
 
@@ -32,7 +19,7 @@ struct Node
     Node(const location &loc) :
         loc_(loc) {}
 
-    virtual void dump(std::ostream& os) const = 0;
+    virtual void dump(std::ostream& os) const;
 
     virtual ~Node() {}
 };
@@ -43,6 +30,8 @@ struct ErrorNode : public Node
 
     ErrorNode(const std::string& msg, const location& loc) :
         Node(loc), msg_(msg) {}
+
+    void dump(std::ostream& os) const override;
 };
 
 struct Expression : public Node
@@ -122,11 +111,11 @@ struct TernaryExpression : public Expression
     using Expression::loc_;
 
     Expression* condition_ = nullptr;
-    Expression* trueExpr_ = nullptr;
-    Expression* falseExpr_ = nullptr;
+    Expression* onTrue_ = nullptr;
+    Expression* onFalse_ = nullptr;
 
-    TernaryExpression(Expression* condition, Expression* trueExpr, Expression* falseExpr, const location& loc) :
-        Expression(loc), condition_(condition), trueExpr_(trueExpr), falseExpr_(falseExpr) {}
+    TernaryExpression(Expression* condition, Expression* onTrue, Expression* onFalse, const location& loc) :
+        Expression(loc), condition_(condition), onTrue_(onTrue), onFalse_(onFalse) {}
 
     void dump(std::ostream& os) const override;
 };
@@ -172,7 +161,7 @@ struct Statement : public Node
     Statement(const location &loc) :
         Node(loc) {}
 
-    void dump(std::ostream& os) const override;  
+    void dump(std::ostream& os) const override;
 };
 
 struct BlockStatement : public Statement
@@ -259,7 +248,7 @@ struct ContinueStatement : public Statement
     ContinueStatement(const location& loc) :
         Statement(loc) {}
 
-    void dump(std::ostream& os) const override;   
+    void dump(std::ostream& os) const override;
 };
 
 class AST final
@@ -292,8 +281,13 @@ public:
         return root_;
     }
 
+    void clear() {
+        nodes_.clear();
+        root_ = nullptr;
+    }
+
     void dump(std::ostream& os) const {
-        os << "digraph {";
+        os << "digraph {\n";
         root_->dump(os);
         os << "}" << std::endl;
     }
