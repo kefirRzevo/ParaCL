@@ -10,22 +10,22 @@
 #include <fstream>
 #include "parser.tab.hh"
 #include "location.hpp"
+#include "Driver.hpp"
 
 namespace paracl::frontend
 {
 
 class Driver;
-class Parser;
 
 class Lexer final : public yyFlexLexer
 {
 private:
-    Driver* driver_ = nullptr;
+    Driver& driver_;
     std::ifstream in_;
     position curPos_;
 
 public:
-    Lexer(Driver* driver, std::string* filepath)
+    Lexer(Driver& driver, std::string* filepath)
     : driver_(driver), in_(*filepath), curPos_(filepath) {
         yyrestart(in_);
     }
@@ -40,5 +40,3 @@ public:
 };
 
 } // namespace paracl::frontend
-
-#include "Driver.hpp"

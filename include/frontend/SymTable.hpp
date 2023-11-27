@@ -10,8 +10,6 @@ namespace paracl::frontend
 {
 
 struct VariableExpression;
-class SymTable;
-class Scopes;
 
 class SymTable final
 {

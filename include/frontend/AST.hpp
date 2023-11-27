@@ -24,16 +24,6 @@ struct Node
     virtual ~Node() {}
 };
 
-struct ErrorNode : public Node
-{
-    std::string msg_;
-
-    ErrorNode(const std::string& msg, const location& loc) :
-        Node(loc), msg_(msg) {}
-
-    void dump(std::ostream& os) const override;
-};
-
 struct Expression : public Node
 {
     using Node::loc_;
@@ -63,7 +53,7 @@ struct UnaryExpression : public Expression
     UnaryOperation op_;
     Expression* expr_ = nullptr;
 
-    UnaryExpression(UnaryOperation op, Expression* expr, const location& loc) :
+    UnaryExpression(const location& loc, UnaryOperation op, Expression* expr) :
         Expression(loc), op_(op), expr_(expr) {}
 
     void dump(std::ostream& os) const override;
@@ -100,7 +90,7 @@ struct BinaryExpression : public Expression
     Expression* left_ = nullptr;
     Expression* right_ = nullptr;
 
-    BinaryExpression(BinaryOperation op, Expression* left, Expression* right, const location& loc) :
+    BinaryExpression(const location& loc, BinaryOperation op, Expression* left, Expression* right) :
         Expression(loc), op_(op), left_(left), right_(right) {}
 
     void dump(std::ostream& os) const override;
@@ -114,7 +104,7 @@ struct TernaryExpression : public Expression
     Expression* onTrue_ = nullptr;
     Expression* onFalse_ = nullptr;
 
-    TernaryExpression(Expression* condition, Expression* onTrue, Expression* onFalse, const location& loc) :
+    TernaryExpression(const location& loc, Expression* condition, Expression* onTrue, Expression* onFalse) :
         Expression(loc), condition_(condition), onTrue_(onTrue), onFalse_(onFalse) {}
 
     void dump(std::ostream& os) const override;
@@ -126,7 +116,7 @@ struct ConstantExpression : public Expression
 
     int value_;
 
-    ConstantExpression(const int& value, const location& loc) :
+    ConstantExpression(const location& loc, const int& value) :
         Expression(loc), value_(value) {}
 
     void dump(std::ostream& os) const override;
@@ -138,7 +128,7 @@ struct VariableExpression : public Expression
 
     std::string name_;
 
-    VariableExpression(const std::string& name, const location& loc) :
+    VariableExpression(const location& loc, const std::string& name) :
         Expression(loc), name_(name) {}
 
     void dump(std::ostream& os) const override;
@@ -150,6 +140,16 @@ struct InputExpression : public Expression
 
     InputExpression(const location& loc):
         Expression(loc) {}
+
+    void dump(std::ostream& os) const override;
+};
+
+struct ErrorExpression : public Expression
+{
+    std::string msg_;
+
+    ErrorExpression(const location& loc, const std::string& msg) :
+        Expression(loc), msg_(msg) {}
 
     void dump(std::ostream& os) const override;
 };
@@ -183,7 +183,7 @@ struct ExpressionStatement : public Statement
 
     Expression* expr_;
 
-    ExpressionStatement(Expression* expr, const location& loc) :
+    ExpressionStatement(const location& loc, Expression* expr) :
         Statement(loc), expr_(expr) {}
 
     void dump(std::ostream& os) const override;
@@ -197,10 +197,10 @@ struct IfStatement : public Statement
     Statement* trueBlock_ = nullptr;
     Statement* falseBlock_ = nullptr;
 
-    IfStatement(Expression* condition, Statement* trueBlock, const location& loc) :
+    IfStatement(const location& loc, Expression* condition, Statement* trueBlock) :
         Statement(loc), condition_(condition), trueBlock_(trueBlock) {}
 
-    IfStatement(Expression* condition, Statement* trueBlock, Statement* falseBlock, const location& loc) :
+    IfStatement(const location& loc, Expression* condition, Statement* trueBlock, Statement* falseBlock) :
         Statement(loc), condition_(condition), trueBlock_(trueBlock), falseBlock_(falseBlock) {}
 
     void dump(std::ostream& os) const override;
@@ -213,7 +213,7 @@ struct WhileStatement : public Statement
     Expression* condition_ = nullptr;
     Statement* block_ = nullptr;
 
-    WhileStatement(Expression* condition, Statement* block, const location& loc) :
+    WhileStatement(const location& loc, Expression* condition, Statement* block) :
         Statement(loc), condition_(condition), block_(block) {}
 
     void dump(std::ostream& os) const override;
@@ -225,7 +225,7 @@ struct OutputStatement : public Statement
 
     Expression* expr_;
 
-    OutputStatement(Expression* expr, const location& loc) :
+    OutputStatement(const location& loc, Expression* expr) :
         Statement(loc), expr_(expr) {}
 
     void dump(std::ostream& os) const override;
@@ -288,6 +288,7 @@ public:
 
     void dump(std::ostream& os) const {
         os << "digraph {\n";
+        os << "\tnode[shape=record, style=filled, fontcolor=black];\n";
         root_->dump(os);
         os << "}" << std::endl;
     }

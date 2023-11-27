@@ -1,6 +1,7 @@
 #pragma once
 
 #include "parser.tab.hh"
+#include "SemanticAnalysis.hpp"
 #include "SymTable.hpp"
 #include "Errors.hpp"
 #include "Lexer.hpp"
@@ -9,77 +10,64 @@
 namespace paracl::frontend
 {
 
+class AST;
+class Lexer;
+class Parser;
+class ErrorReposter;
+class SematicAnalyzer;
+
 class Driver
 {
 private:
-    std::string filepath_;
+    std::string filepath_ = "";
 
     std::unique_ptr<AST> tree_ = nullptr;
     std::unique_ptr<Lexer> lexer_ = nullptr;
     std::unique_ptr<Parser> parser_ = nullptr;
-    std::unique_ptr<ScopeChecker> scopes_ = nullptr;
     std::unique_ptr<ErrorReporter> reporter_ = nullptr;
-
-    void initializeLexerParser() {
-        lexer_ = std::make_unique<Lexer>(this, std::addressof(filepath_));
-        parser_ = std::make_unique<Parser>(*lexer_, *this);
-    }
-
-    void clearLexerParser() {
-        lexer_.reset();
-        parser_.reset();
-    }
+    std::unique_ptr<SemanticAnalyzer> analyzer_ = nullptr;
 
 public:
     Driver(const std::string& filepath)
     : filepath_(filepath) {
         tree_ = std::make_unique<AST>();
-        scopes_ = std::make_unique<ScopeChecker>();
+        lexer_ = std::make_unique<Lexer>(*this, getFilepath());
+        parser_ = std::make_unique<Parser>(*this);
+        analyzer_ = std::make_unique<SemanticAnalyzer>();
         reporter_ = std::make_unique<ErrorReporter>();
-        initializeLexerParser();
     }
 
     void setFile(const std::string& filepath) {
         filepath_ = filepath;
-        clearLexerParser();
-        initializeLexerParser();
+        lexer_.reset();
+        lexer_ = std::make_unique<Lexer>(*this, getFilepath());
         tree_->clear();
-        scopes_->clear();
         reporter_->clear();
+        analyzer_->clear();
     }
 
-    void parse() {
-        parser_->parse();
+    std::string* getFilepath() {
+        return std::addressof(filepath_);
     }
 
-    template<typename NodeType, typename... NodeArgs>
-    NodeType* createNode(NodeArgs&&... args) {
-        return tree_->createNode<NodeType>(std::forward<NodeArgs>(args)...);
+    AST* getAST() {
+        return tree_.get();
     }
 
-    void setRoot(Node* root) {
-        tree_->setRoot(root);
+    Lexer* getLexer() {
+        return lexer_.get();
     }
 
-    const Node* getRoot() const {
-        return tree_->getRoot();
+    Parser* getParser() {
+        return parser_.get();
     }
 
-    void dump(std::ostream& os) const {
-        return tree_->dump(os);
+    ErrorReporter* getReporter() {
+        return reporter_.get();
     }
 
-    template<typename ErrorType, typename... ErrorArgs>
-    void reportError(ErrorArgs&&... args) {
-        reporter_->reportError<ErrorType>(std::forward<ErrorArgs>(args)...);
-    }
-
-    bool hasErrors() const {
-        return reporter_->hasErrors();
-    }
-
-    void reportAllErrors(std::ostream& os) const {
-        reporter_->reportAllErrors(os);
+    SemanticAnalyzer* getAnalyzer() {
+        return analyzer_.get();
     }
 };
 

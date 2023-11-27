@@ -14,11 +14,24 @@
 %option yyclass="Lexer"
 %option nounistd
 
-number      (0|[1-9][0-9]*)
-identifier  [a-zA-Z_][a-zA-Z_0-9]*
-comment     ([/][/].*)
+%x comment_multiline
+number          (0|[1-9][0-9]*)
+identifier      [a-zA-Z_][a-zA-Z_0-9]*
+comment_single  ([/][/].*)
 
 %%
+
+"/*"                            { BEGIN(comment_multiline); updateLocation(); }
+<comment_multiline>[^*\n]*      { updateLocation(); }
+<comment_multiline>"*"+[^*/\n]* { updateLocation(); }
+<comment_multiline>\n|\r\n      { curPos_.lines(yyleng); updateLocation(); }
+<comment_multiline>"*"+"/"      { BEGIN(INITIAL); updateLocation(); }
+
+<comment_multiline><<EOF>>      {
+  auto loc = updateLocation();
+  driver_.getReporter()->reportError<UnterminatedComment>(loc);
+  return Parser::make_EOF(loc);
+}
 
 "break"         { return Parser::make_BREAK(updateLocation()); }
 "continue"      { return Parser::make_CONTINUE(updateLocation()); }
@@ -58,16 +71,16 @@ comment     ([/][/].*)
 "/"             { return Parser::make_DIV_OP(updateLocation()); }
 "%"             { return Parser::make_MOD_OP(updateLocation()); }
 
-{identifier}    { auto newloc = updateLocation(); return Parser::make_IDENTIFIER(yytext, newloc); }
-{number}        { auto newloc = updateLocation(); return Parser::make_CONSTANT(std::atoi(yytext), newloc); }
-{comment}       { updateLocation(); }
+{identifier}      { return Parser::make_IDENTIFIER(yytext, updateLocation()); }
+{number}          { return Parser::make_CONSTANT(std::atoi(yytext), updateLocation()); }
+{comment_single}  { updateLocation(); }
 
-[\n|\r\n]+      { curPos_.lines(yyleng); }
-[\t]+           { curPos_.columns(yyleng); }
+[\n|\r\n]+  { curPos_.lines(yyleng); updateLocation(); }
+[ \t]+      { curPos_.columns(yyleng); updateLocation(); }
 
 . {
   auto loc = updateLocation();
-  driver_->reportError<Lexical>(yytext, loc); 
+  driver_.getReporter()->reportError<UnknownToken>(loc, yytext);
 }
 
 <<EOF>>         { return Parser::make_EOF(updateLocation()); }

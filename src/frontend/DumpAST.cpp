@@ -4,23 +4,19 @@ namespace paracl::frontend
 {
 
 void Node::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=red];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | Abstract Node\"];\n";
+    os << "\tnode_" << this << "[fillcolor=red, label = \"" << loc_ << " | Abstract Node\"];\n";
 }
 
-void ErrorNode::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=red];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | Error " << msg_ << "\"];\n";
+void ErrorExpression::dump(std::ostream& os) const {
+    os << "\tnode_" << this << "[fillcolor=red, label = \"" << loc_ << " | Error " << msg_ << "\"];\n";
 }
 
 void Expression::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=orange];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | Expression\"];\n";
+    os << "\tnode_" << this << "[fillcolor=orange, label = \"" << loc_ << " | Expression\"];\n";
 }
 
 void UnaryExpression::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=orange];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | ";
+    os << "\tnode_" << this << "[fillcolor=orange, label = \"" << loc_ << " | ";
     switch (op_) {
     case UnaryOperation::UN_SUB:
         os << "-";
@@ -55,8 +51,7 @@ void UnaryExpression::dump(std::ostream& os) const {
 }
 
 void BinaryExpression::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=orange];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | ";
+    os << "\tnode_" << this << "[fillcolor=orange, label = \"" << loc_ << " | ";
     switch (op_) {
     case BinaryOperation::BIN_MUL:
         os << "*";
@@ -74,16 +69,16 @@ void BinaryExpression::dump(std::ostream& os) const {
         os << "-";
         break;
     case BinaryOperation::BIN_L:
-        os << "<";
+        os << "\\<";
         break;
     case BinaryOperation::BIN_G:
-        os << ">";
+        os << "\\>";
         break;
     case BinaryOperation::BIN_LE:
-        os << "<=";
+        os << "\\<=";
         break;
     case BinaryOperation::BIN_GE:
-        os << ">=";
+        os << "\\>=";
         break;
     case BinaryOperation::BIN_EQ:
         os << "==";
@@ -119,8 +114,7 @@ void BinaryExpression::dump(std::ostream& os) const {
 }
 
 void TernaryExpression::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=orange];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | ? :\"];\n";
+    os << "\tnode_" << this << "[fillcolor=orange, label = \"" << loc_ << " | ? :\"];\n";
 
     assert(condition_);
     os << "\tnode_" << this << " -> node_" << condition_ << ";\n";
@@ -136,28 +130,23 @@ void TernaryExpression::dump(std::ostream& os) const {
 }
 
 void ConstantExpression::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=yellow];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | " << value_ << "\"];\n";
+    os << "\tnode_" << this << "[fillcolor=yellow, label = \"" << loc_ << " | " << value_ << "\"];\n";
 }
 
 void VariableExpression::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=pink];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | " << name_ << "\"];\n";
+    os << "\tnode_" << this << "[fillcolor=pink, label = \"" << loc_ << " | " << name_ << "\"];\n";
 }
 
 void InputExpression::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=pink];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | Input\"];\n";
+    os << "\tnode_" << this << "[fillcolor=pink, label = \"" << loc_ << " | Input\"];\n";
 }
 
 void Statement::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=green];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | Statement\"];\n";
+    os << "\tnode_" << this << "[fillcolor=green, label = \"" << loc_ << " | Statement\"];\n";
 }
 
 void BlockStatement::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=green];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | Statement Block\"];\n";
+    os << "\tnode_" << this << "[fillcolor=green, label = \"" << loc_ << " | Statement Block\"];\n";
     for (const auto& statement: statements_) {
         assert(statement);
         os << "\tnode_" << this << " -> node_" << statement << ";\n";
@@ -166,8 +155,7 @@ void BlockStatement::dump(std::ostream& os) const {
 }
 
 void ExpressionStatement::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=green];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | Expression Statement\"];\n";
+    os << "\tnode_" << this << "[fillcolor=green, label = \"" << loc_ << " | Expression Statement\"];\n";
 
     assert(expr_);
     os << "\tnode_" << this << " -> node_" << expr_ << ";\n";
@@ -175,10 +163,9 @@ void ExpressionStatement::dump(std::ostream& os) const {
 }
 
 void IfStatement::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=green];\n";
     falseBlock_
-    ? (os << "\tnode_" << this << "[label = \"" << loc_ << " | If\"];\n")
-    : (os << "\tnode_" << this << "[label = \"" << loc_ << " | If Else\"];\n");
+    ? (os << "\tnode_" << this << "[fillcolor=green, label = \"" << loc_ << " | If\"];\n")
+    : (os << "\tnode_" << this << "[fillcolor=green, label = \"" << loc_ << " | If Else\"];\n");
 
     assert(condition_);
     os << "\tnode_" << this << " -> node_" << condition_ << ";\n";
@@ -196,8 +183,7 @@ void IfStatement::dump(std::ostream& os) const {
 }
 
 void WhileStatement::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=green];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | While\"];\n";
+    os << "\tnode_" << this << "[fillcolor=green, label = \"" << loc_ << " | While\"];\n";
 
     assert(condition_);
     os << "\tnode_" << this << " -> node_" << condition_ << ";\n";
@@ -209,8 +195,7 @@ void WhileStatement::dump(std::ostream& os) const {
 }
 
 void OutputStatement::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=green];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | Output Statement\"];\n";
+    os << "\tnode_" << this << "[fillcolor=green, label = \"" << loc_ << " | Output Statement\"];\n";
 
     assert(expr_);
     os << "\tnode_" << this << " -> node_" << expr_ << ";\n";
@@ -218,13 +203,11 @@ void OutputStatement::dump(std::ostream& os) const {
 }
 
 void BreakStatement::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=green];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | Break\"];\n";
+    os << "\tnode_" << this << "[fillcolor=green, label = \"" << loc_ << " | Break\"];\n";
 }
 
 void ContinueStatement::dump(std::ostream& os) const {
-    os << "\tnode[shape=record, style=filled, fontcolor=black, fillcolor=green];\n";
-    os << "\tnode_" << this << "[label = \"" << loc_ << " | Continue\"];\n";
+    os << "\tnode_" << this << "[fillcolor=green, label = \"" << loc_ << " | Continue\"];\n";
 }
 
 } // namespace paracl::frontend {

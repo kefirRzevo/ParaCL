@@ -11,76 +11,94 @@ namespace paracl::frontend
 struct Error
 {
     location loc_;
+    std::string msg_;
 
-    Error(const location& loc) :
-        loc_(loc) {}
+    Error(const location& loc, const std::string& msg) :
+        loc_(loc), msg_(msg) {}
 
-    virtual void print(std::ostream& os) const{assert(std::addressof(os));};
+    virtual void print(std::ostream& os) const {
+        os << loc_ << " error '" << msg_ << "'" << std::endl;
+    }
 
     virtual ~Error() = default;
 };
 
 struct Lexical : public Error
 {
-    std::string msg_;
+    using Error::loc_;
+    using Error::msg_;
 
-    Lexical(const std::string& msg, const location& loc) :
-        Error(loc), msg_(msg) {}
+    Lexical(const location& loc, const std::string& msg) :
+        Error(loc, msg) {}
 
-    void print(std::ostream& os) const override{assert(std::addressof(os));};
+    void print(std::ostream& os) const override {
+        os << loc_ << " error: lexical '" << msg_ << "'" << std::endl;
+    }
 };
 
 struct UnknownToken : public Lexical
 {
+    using Lexical::loc_;
+    using Lexical::msg_;
+
     std::string token_;
 
-    UnknownToken(const std::string& token, const location& loc) :
-        Lexical("unknown type name", loc), token_(token) {}
+    UnknownToken(const location& loc, const std::string& token) :
+        Lexical(loc, "unknown type name "), token_(token) {}
 
     void print(std::ostream& os) const override {
-        os << ":" << loc_.begin.line << ":" << loc_.begin.column << " error: " << msg_ << "'" << token_ << "'" << std::endl;
+        os << loc_ << " error: " << msg_ << "'" << token_ << "'" << std::endl;
+    }
+};
+
+struct UnterminatedComment : public Lexical
+{
+    using Lexical::loc_;
+    using Lexical::msg_;
+
+    UnterminatedComment(const location& loc) :
+        Lexical(loc, "unterminated /* comment") {}
+
+    void print(std::ostream& os) const override {
+        os << loc_ << " error: " << msg_ << std::endl;
     }
 };
 
 struct Syntax : public Error
 {
-    std::string msg_;
+    using Error::loc_;
+    using Error::msg_;
 
-    Syntax(const std::string& msg, const location& loc) :
-        Error(loc), msg_(msg) {}
+    Syntax(const location& loc, const std::string& msg) :
+        Error(loc, msg) {}
+
+    void print(std::ostream& os) const override {
+        os << loc_ << " " << msg_ << std::endl;
+    }
 };
 
-struct IncompleteExpression : public Syntax
-{
-
-};
-
-/*
 struct Semantic : public Error
 {
+    using Error::loc_;
+    using Error::msg_;
 
+    Semantic(const location& loc, const std::string& msg)
+    : Error(loc, msg) {}
+
+    void print(std::ostream& os) const override {
+        os << loc_ << " error: semantic '" << msg_ << "'" << std::endl;
+    }
 };
 
 struct ErrorAttachments
 {
 
 };
-//*/
 
 class ErrorReporter
 {
 private:
     std::vector<std::unique_ptr<Error>> errors_;
-
-    static bool errorCompare(const std::unique_ptr<Error>& lhs, const std::unique_ptr<Error>& rhs) {
-        auto lhsLine = lhs->loc_.begin.line;
-        auto rhsLine = rhs->loc_.begin.line;
-        auto lhsCol = lhs->loc_.begin.column;
-        auto rhsCol = rhs->loc_.begin.column;
-        return lhsLine < rhsLine ? true :
-                                    lhsCol < rhsCol ? true :
-                                                        false;
-    }
 
 public:
     ErrorReporter() {}
@@ -91,12 +109,15 @@ public:
         errors_.push_back(std::move(uptr));
     }
 
+    Error* lastError() {
+        return errors_.empty() ? nullptr : errors_.back().get();
+    }
+
     bool hasErrors() const {
         return errors_.size();
     }
 
     void reportAllErrors(std::ostream& os) const {
-        //std::sort(errors_.cbegin(), errors_.cend(), this->errorCompare);
         for (const auto& error: errors_) {
             error->print(os);
         }
