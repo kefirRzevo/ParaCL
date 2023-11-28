@@ -1,7 +1,6 @@
 #pragma once
 
 #include "parser.tab.hh"
-#include "SemanticAnalysis.hpp"
 #include "SymTable.hpp"
 #include "Errors.hpp"
 #include "Lexer.hpp"
@@ -14,7 +13,6 @@ class AST;
 class Lexer;
 class Parser;
 class ErrorReposter;
-class SematicAnalyzer;
 
 class Driver
 {
@@ -25,7 +23,6 @@ private:
     std::unique_ptr<Lexer> lexer_ = nullptr;
     std::unique_ptr<Parser> parser_ = nullptr;
     std::unique_ptr<ErrorReporter> reporter_ = nullptr;
-    std::unique_ptr<SemanticAnalyzer> analyzer_ = nullptr;
 
 public:
     Driver(const std::string& filepath)
@@ -33,7 +30,6 @@ public:
         tree_ = std::make_unique<AST>();
         lexer_ = std::make_unique<Lexer>(*this, getFilepath());
         parser_ = std::make_unique<Parser>(*this);
-        analyzer_ = std::make_unique<SemanticAnalyzer>();
         reporter_ = std::make_unique<ErrorReporter>();
     }
 
@@ -43,7 +39,6 @@ public:
         lexer_ = std::make_unique<Lexer>(*this, getFilepath());
         tree_->clear();
         reporter_->clear();
-        analyzer_->clear();
     }
 
     std::string* getFilepath() {
@@ -64,10 +59,6 @@ public:
 
     ErrorReporter* getReporter() {
         return reporter_.get();
-    }
-
-    SemanticAnalyzer* getAnalyzer() {
-        return analyzer_.get();
     }
 };
 

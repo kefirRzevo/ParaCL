@@ -144,7 +144,6 @@
         | CONSTANT                  { $$ = driver.getAST()->createNode<ConstantExpression>(@1, $1); }
         | QMARK                     { $$ = driver.getAST()->createNode<InputExpression>(@$); }
         | LPAREN expression RPAREN  { $$ = $2; }
-        | LPAREN error RPAREN       { auto err = driver.getReporter()->lastError(); $$ = driver.getAST()->createNode<ErrorExpression>(err->loc_, err->msg_); yyerrok; }
 
     postfix_expression
         : primary_expression        { $$ = $1; }
@@ -228,7 +227,7 @@
 
     selection_statement
         : IF LPAREN expression RPAREN statement %prec IFX       { $$ = driver.getAST()->createNode<IfStatement>(@$, $3, $5); }
-        | IF LPAREN expression RPAREN statement ELSE statement  { $$ = driver.getAST()->createNode<IfStatement>(@$, $3, $5, $7); }
+        | IF LPAREN expression RPAREN statement ELSE statement  { $$ = driver.getAST()->createNode<IfElseStatement>(@$, $3, $5, $7); }
 
     iteration_statement
         : WHILE LPAREN expression RPAREN statement  { $$ = driver.getAST()->createNode<WhileStatement>(@$, $3, $5); }

@@ -13,29 +13,34 @@ find_package(BISON REQUIRED)
 
 set(CMAKE_BUILD_TYPE Debug)
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    set (COMPILER_SETTINGS -gdwarf-4 -g -Wall -Wextra -Wpedantic)  
+    set(COMPILER_SETTINGS -g -Wall -Wextra -Wpedantic)  
 else ()
-    set (COMPILER_SETTINGS -O2 -Wall -Wextra -Wpedantic)
+    set(COMPILER_SETTINGS -O2 -Wall -Wextra -Wpedantic)
 endif ()
 add_compile_options(${COMPILER_SETTINGS})
 
 include_directories(include)
 
-flex_target(scanner
+flex_target(
+  scanner
   src/frontend/Lexer.l
-  ${CMAKE_CURRENT_BINARY_DIR}/lexer.cc)
+  ${CMAKE_CURRENT_BINARY_DIR}/lexer.cc
+)
 
-bison_target(parser
+bison_target(
+  parser
   src/frontend/Parser.y
   ${CMAKE_CURRENT_BINARY_DIR}/parser.cc
-  COMPILE_FLAGS "-Wcounterexamples --defines=${CMAKE_CURRENT_BINARY_DIR}/parser.tab.hh")
+  COMPILE_FLAGS "-Wcounterexamples --defines=${CMAKE_CURRENT_BINARY_DIR}/parser.tab.hh"
+)
 
 add_flex_bison_dependency(scanner parser)
 
-add_executable(${INTERPETER}
+add_executable(
+  ${INTERPETER}
   ${BISON_parser_OUTPUTS}
   ${FLEX_scanner_OUTPUTS}
-  src/frontend/DumpAST.cpp ParaCL.cpp
+  src/frontend/AST.cpp ParaCL.cpp
 )
 
 target_compile_features(${INTERPETER} PRIVATE cxx_std_20)
