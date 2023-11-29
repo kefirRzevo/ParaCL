@@ -1,8 +1,10 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <fstream>
 #include <iostream>
+
 #include "location.hpp"
 
 namespace paracl::frontend
@@ -90,9 +92,47 @@ struct Semantic : public Error
     }
 };
 
-struct ErrorAttachments
+struct UnassignableExpression : public Semantic
 {
+    using Error::loc_;
+    using Error::msg_;
 
+    UnassignableExpression(const location& loc)
+    : Semantic(loc, "expression is not assignable") {}
+
+    void print(std::ostream& os) const override {
+        os << loc_ << " error: " << msg_ << std::endl;
+    }
+};
+
+struct UndeclaredIdentifier : public Semantic
+{
+    using Error::loc_;
+    using Error::msg_;
+
+    std::string ident_;
+
+    UndeclaredIdentifier(const location& loc, const std::string& ident)
+    : Semantic(loc, "use of undeclared identifier"), ident_(ident) {}
+
+    void print(std::ostream& os) const override {
+        os << loc_ << " error: " << msg_ << " '" << ident_ << "'" << std::endl;
+    }
+};
+
+struct OutOfLoopStatement : public Semantic
+{
+    using Error::loc_;
+    using Error::msg_;
+
+    std::string stat_;
+
+    OutOfLoopStatement(const location& loc, const std::string& stat)
+    : Semantic(loc, "statement not in loop or switch statement"), stat_(stat) {}
+
+    void print(std::ostream& os) const override {
+        os << loc_ << " error: '" << stat_ << "' " << msg_ << std::endl;
+    }
 };
 
 class ErrorReporter

@@ -8,14 +8,16 @@
 #define YY_DECL paracl::frontend::Parser::symbol_type paracl::frontend::Lexer::getNextToken()
 
 #include <fstream>
+
+#include "Driver.hpp"
 #include "parser.tab.hh"
 #include "location.hpp"
-#include "Driver.hpp"
 
 namespace paracl::frontend
 {
 
 class Driver;
+class Parser;
 
 class Lexer final : public yyFlexLexer
 {

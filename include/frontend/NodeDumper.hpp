@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
+
 #include "NodeVisitor.hpp"
 
 namespace paracl::frontend
@@ -9,9 +11,10 @@ namespace paracl::frontend
 class NodeDumper : public NodeVisitor
 {
 private:
+    using NodeVisitor::postOrderTraversal;
     using NodeVisitor::visit;
+
     std::ostream& os_;
-    std::vector<INode*> nodes_;
 
     void printLink(INode* parent, INode* child) {
         os_ << "\tnode_" << parent << " -> node_" << child << ";\n";
@@ -19,19 +22,6 @@ private:
 
     void printNode(INode* node, const std::string& color, const std::string& label) {
         os_ << "\tnode_" << node << "[fillcolor=" << color << ", label = \"" << node->loc_ << " | " << label << "\"];\n";
-    }
-
-    void push(INode* node) {
-        nodes_.push_back(node);
-    }
-
-    INode* pop() {
-        INode* node = nullptr;
-        if (!nodes_.empty()){
-            node = nodes_.back();
-            nodes_.pop_back();
-        }
-        return node;
     }
 
     std::string unOper(UnaryOperation op) {
@@ -99,36 +89,26 @@ public:
     void dump(INode* root) {
         os_ << "digraph {\n";
         os_ << "\tnode[shape=record, style=filled, fontcolor=black];\n";
-        push(root);
-        while(INode* node = pop()) {
+        auto nodes = postOrderTraversal(root);
+        for (auto node: nodes) {
             visit(node);
         }
         os_ << "}" << std::endl;
     }
 
 protected:
-    virtual void visit(Expression* node) {
-        printNode(node, "orange", "Expression");
-    }
-
     virtual void visit(UnaryExpression* node) {
-        push(node->expr_);
         printNode(node, "orange", unOper(node->op_));
         printLink(node, node->expr_);
     }
 
     virtual void visit(BinaryExpression* node) {
-        push(node->left_);
-        push(node->right_);
         printNode(node, "orange", binOper(node->op_));
         printLink(node, node->left_);
         printLink(node, node->right_);
     }
 
     virtual void visit(TernaryExpression* node) {
-        push(node->condition_);
-        push(node->onTrue_);
-        push(node->onFalse_);
         printNode(node, "orange", "? :");
         printLink(node, node->condition_);
         printLink(node, node->onTrue_);
@@ -147,36 +127,25 @@ protected:
         printNode(node, "orange", "Input");
     }
 
-    virtual void visit(Statement* node) {
-        printNode(node, "green", "Statement");
-    }
-
     virtual void visit(BlockStatement* node) {
         printNode(node, "green", "Statement Block");
         for (auto& statement: node->statements_) {
-            push(statement);
             printLink(node, statement);
         }
     }
 
     virtual void visit(ExpressionStatement* node) {
-        push(node->expr_);
         printNode(node, "green", "Expression Statement");
         printLink(node, node->expr_);
     }
 
     virtual void visit(IfStatement* node) {
-        push(node->condition_);
-        push(node->trueBlock_);
         printNode(node, "green", "if");
         printLink(node, node->condition_);
         printLink(node, node->trueBlock_);
     }
 
     virtual void visit(IfElseStatement* node) {
-        push(node->condition_);
-        push(node->trueBlock_);
-        push(node->falseBlock_);
         printNode(node, "green", "if else");
         printLink(node, node->condition_);
         printLink(node, node->trueBlock_);
@@ -184,15 +153,12 @@ protected:
     }
 
     virtual void visit(WhileStatement* node) {
-        push(node->condition_);
-        push(node->block_);
         printNode(node, "green", "while");
         printLink(node, node->condition_);
         printLink(node, node->block_);
     }
 
     virtual void visit(OutputStatement* node) {
-        push(node->expr_);
         printNode(node, "greenn", "Output");
         printLink(node, node->expr_);
     }

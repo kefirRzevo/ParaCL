@@ -1,11 +1,13 @@
 #pragma once
 
+#include <deque>
 #include <memory>
 #include <string>
 #include <vector>
 #include <fstream>
 #include <utility>
 #include <iostream>
+
 #include "location.hpp"
 #include "SymTable.hpp"
 
@@ -13,6 +15,7 @@ namespace paracl::frontend
 {
 
 class NodeVisitor;
+class SymTable;
 
 struct INode
 {
@@ -145,7 +148,7 @@ struct BlockStatement : public Statement
     using Statement::loc_;
 
     SymTable table_;
-    std::vector<Statement* > statements_;
+    std::deque<Statement* > statements_;
 
     BlockStatement(const location& loc) :
         Statement(loc) {}
@@ -209,6 +212,8 @@ struct BreakStatement : public Statement
 {
     using Statement::loc_;
 
+    WhileStatement* whileStat = nullptr;
+
     BreakStatement(const location& loc) :
         Statement(loc) {}
 };
@@ -216,6 +221,8 @@ struct BreakStatement : public Statement
 struct ContinueStatement : public Statement
 {
     using Statement::loc_;
+
+    WhileStatement* whileStat = nullptr;
 
     ContinueStatement(const location& loc) :
         Statement(loc) {}

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "parser.tab.hh"
-#include "SymTable.hpp"
 #include "Errors.hpp"
 #include "Lexer.hpp"
 #include "AST.hpp"

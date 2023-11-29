@@ -8,8 +8,13 @@ int main() {
         Driver drv{"../tests/ex1.cl"};
         drv.getParser()->parse();
         if (drv.getAST()->getRoot() != nullptr) {
+            drv.getAST()->semanticAnalyze(drv);
             std::fstream dumpFile{"../res/dump_ex1.dot", std::ios::out};
             drv.getAST()->dump(dumpFile);
+
+            std::fstream dumpFile2{"../res/dump_ex2.dot", std::ios::out};
+            AST ast{*drv.getAST()};
+            ast.dump(dumpFile2);
         }
         if (drv.getReporter()->hasErrors()) {
             drv.getReporter()->reportAllErrors(std::cout);

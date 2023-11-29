@@ -4,7 +4,6 @@
 #include <optional>
 #include <string_view>
 #include <unordered_map>
-#include "AST.hpp"
 
 namespace paracl::frontend
 {

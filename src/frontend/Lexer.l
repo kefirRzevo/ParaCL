@@ -3,6 +3,7 @@
 
 #include "parser.tab.hh"
 #include "frontend/Lexer.hpp"
+#include "frontend/Errors.hpp"
 
 #include <iostream>
 #include <string>

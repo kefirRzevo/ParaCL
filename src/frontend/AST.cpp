@@ -1,4 +1,8 @@
-#include "../../include/frontend/AST.hpp"
+#include "frontend/AST.hpp"
+#include "frontend/NodeVisitor.hpp"
+#include "frontend/NodeCopier.hpp"
+#include "frontend/NodeDumper.hpp"
+#include "frontend/NodeSemanticAnalyzer.hpp"
 
 namespace paracl::frontend
 {
@@ -17,8 +21,9 @@ void AST::dump(std::ostream& os) const {
     dumper.dump(root_);
 }
 
-void AST::semanticAnalyze(Driver& ) {
-
+void AST::semanticAnalyze(Driver& driver) {
+    NodeSemanticAnalyzer analyzer{driver};
+    analyzer.analyze(root_);
 }
 
 } // namespace paracl::frontend

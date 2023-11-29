@@ -6,9 +6,8 @@
 #include <fstream>
 #include <utility>
 #include <iostream>
+
 #include "INode.hpp"
-#include "SymTable.hpp"
-#include "location.hpp"
 
 namespace paracl::frontend
 {
@@ -53,7 +52,7 @@ public:
         root_ = root;
     }
 
-    const INode* getRoot() const {
+    INode* getRoot() {
         return root_;
     }
 
@@ -68,7 +67,3 @@ public:
 };
 
 } // namespace paracl::frontend {
-
-#include "NodeVisitor.hpp"
-#include "NodeCopier.hpp"
-#include "NodeDumper.hpp"
